@@ -1,0 +1,88 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+local Window = OrionLib:MakeWindow({Name = "Ninja Cutter Simulator", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local remoteFolder = replicatedStorage:WaitForChild("Remote")
+
+local saveKillArgs = {
+    [1] = 10000,
+    [2] = 10000000
+}
+local saveKillEvent = remoteFolder:WaitForChild("SaveKill")
+
+local upgradeCurrencyArgs = {
+    [1] = 9e9,
+    [2] = 9e9,
+    [3] = 99e99
+}
+local upgradeCurrencyEvent = remoteFolder:WaitForChild("UpgradeCurrency")
+
+local isSaveKillRunning = false
+local isUpgradeCurrencyRunning = false
+
+local function toggleSaveKillLoop()
+    if isSaveKillRunning then
+        isSaveKillRunning = false
+        OrionLib:MakeNotification({
+            Name = "INF Kills Stopped",
+            Content = "Stopped",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    else
+        isSaveKillRunning = true
+        OrionLib:MakeNotification({
+            Name = "INF Kills Started",
+            Content = "Started",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+        while isSaveKillRunning do
+            saveKillEvent:FireServer(unpack(saveKillArgs))
+            wait(0.1)
+        end
+    end
+end
+
+local function toggleUpgradeCurrencyLoop()
+    if isUpgradeCurrencyRunning then
+        isUpgradeCurrencyRunning = false
+        OrionLib:MakeNotification({
+            Name = "INF Coins/Gems Stopped",
+            Content = "Stopped",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    else
+        isUpgradeCurrencyRunning = true
+        OrionLib:MakeNotification({
+            Name = "INF Coins/Gems Started",
+            Content = "Started",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+        while isUpgradeCurrencyRunning do
+            upgradeCurrencyEvent:FireServer(unpack(upgradeCurrencyArgs))
+            wait(0.1)
+        end
+    end
+end
+
+local mainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+mainTab:AddButton({
+    Name = "Toggle INF Kills",
+    Callback = toggleSaveKillLoop
+})
+
+mainTab:AddButton({
+    Name = "Toggle INF Coins/Gems",
+    Callback = toggleUpgradeCurrencyLoop
+})
+
+OrionLib:Init()

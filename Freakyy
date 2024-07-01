@@ -1,0 +1,94 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+local Window = OrionLib:MakeWindow({Name = "Freaky Simulator GUI", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+
+local isInfRebirthRunning = false
+local isInfMoneyRunning = false
+
+local infRebirthThread
+local infMoneyThread
+
+local function toggleInfRebirthLoop()
+    if isInfRebirthRunning then
+        isInfRebirthRunning = false
+        coroutine.yield(infRebirthThread)
+        OrionLib:MakeNotification({
+            Name = "Inf Rebirth Loop Stopped",
+            Content = "Inf Rebirth stopped.",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    else
+        isInfRebirthRunning = true
+        infRebirthThread = coroutine.create(function()
+            local args = {
+                [1] = "Basic Egg",
+                [2] = -math.huge
+            }
+            while isInfRebirthRunning do
+                replicatedStorage.Remotes.Egg:InvokeServer(unpack(args))
+                replicatedStorage.Remotes.Rebirth:FireServer()
+                wait(0.1)
+            end
+        end)
+        coroutine.resume(infRebirthThread)
+        OrionLib:MakeNotification({
+            Name = "Inf Rebirth Loop Started",
+            Content = "Inf Rebirth started.",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    end
+end
+
+local function toggleInfMoneyLoop()
+    if isInfMoneyRunning then
+        isInfMoneyRunning = false
+        coroutine.yield(infMoneyThread)
+        OrionLib:MakeNotification({
+            Name = "Inf Money Loop Stopped",
+            Content = "Inf Money stopped.",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    else
+        isInfMoneyRunning = true
+        infMoneyThread = coroutine.create(function()
+            local args = {
+                [1] = "Basic Egg",
+                [2] = -math.huge
+            }
+            while isInfMoneyRunning do
+                replicatedStorage.Remotes.Egg:InvokeServer(unpack(args))
+                wait(0.1)
+            end
+        end)
+        coroutine.resume(infMoneyThread)
+        OrionLib:MakeNotification({
+            Name = "Inf Money Loop Started",
+            Content = "Inf Money started.",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    end
+end
+
+local mainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+mainTab:AddButton({
+    Name = "Infinite Rebirth",
+    Callback = toggleInfRebirthLoop
+})
+
+mainTab:AddButton({
+    Name = "Infinite Money",
+    Callback = toggleInfMoneyLoop
+})
+
+OrionLib:Init()

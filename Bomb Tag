@@ -1,0 +1,129 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+local Window = OrionLib:MakeWindow({Name = "Bomb Tag GUI", HidePremium = false, SaveConfig = false, ConfigFolder = "OrionTest"})
+
+local Player = game.Players.LocalPlayer
+local alive
+local TPCFrame = CFrame.new(350, 250, 500)
+local isBombFunctionRunning = false
+local bombFunctionThread
+local isAntiAFKRunning = false
+local antiAFKThread
+
+local function bombFunction()
+    Player.Character.ChildRemoved:Connect(function(v)
+        if v.Name == "Bomb" then
+            Player.Character.HumanoidRootPart.CFrame = TPCFrame
+        end
+    end)
+
+    local giveBomb = function()
+        for i, v in ipairs(game.Players:GetPlayers()) do
+            if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character.HumanoidRootPart.Position.Z >= 530 then
+                alive = game.Players:FindFirstChild(v.Name)
+            end
+        end
+        if alive and alive.Character and alive.Character:FindFirstChild("HumanoidRootPart") then
+            local aliveCFrame = alive.Character.HumanoidRootPart.CFrame
+            local randomNumber = math.random(-5, 5)
+            Player.Character.HumanoidRootPart.CFrame = aliveCFrame + (aliveCFrame.LookVector * randomNumber)
+        end
+    end
+
+    while isBombFunctionRunning and task.wait() do
+        if Player.Character:FindFirstChild("Bomb") then
+            giveBomb()
+        elseif Player.Character.HumanoidRootPart.CFrame ~= TPCFrame then
+            if math.round(Player.Character.HumanoidRootPart.Position.Y) ~= 250 then
+                Player.Character.HumanoidRootPart.CFrame = TPCFrame
+            end
+        end
+    end
+end
+
+local function toggleBombFunction(state)
+    if state then
+        isBombFunctionRunning = true
+        bombFunctionThread = coroutine.create(bombFunction)
+        coroutine.resume(bombFunctionThread)
+        OrionLib:MakeNotification({
+            Name = "Started",
+            Content = "Auto Farm has started.",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
+    else
+        isBombFunctionRunning = false
+        if bombFunctionThread and coroutine.status(bombFunctionThread) == "suspended" then
+            coroutine.resume(bombFunctionThread)
+        end
+        OrionLib:MakeNotification({
+            Name = "Stopped",
+            Content = "Auto Farm has stopped.",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
+    end
+end
+
+local function antiAFKFunction()
+    local VirtualUser = game:GetService("VirtualUser")
+    game.Players.LocalPlayer.Idled:connect(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end)
+    
+    while isAntiAFKRunning and task.wait(60) do
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end
+end
+
+local function toggleAntiAFK(state)
+    if state then
+        isAntiAFKRunning = true
+        antiAFKThread = coroutine.create(antiAFKFunction)
+        coroutine.resume(antiAFKThread)
+        OrionLib:MakeNotification({
+            Name = "Started",
+            Content = "Anti-AFK has been started.",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
+    else
+        isAntiAFKRunning = false
+        if antiAFKThread and coroutine.status(antiAFKThread) == "suspended" then
+            coroutine.resume(antiAFKThread)
+        end
+        OrionLib:MakeNotification({
+            Name = "Stopped",
+            Content = "Anti-AFK has been stopped.",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
+    end
+end
+
+local mainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+mainTab:AddToggle({
+    Name = "Toggle Auto Farm",
+    Default = false,
+    Callback = function(state)
+        toggleBombFunction(state)
+    end
+})
+
+mainTab:AddToggle({
+    Name = "Toggle Anti-AFK",
+    Default = false,
+    Callback = function(state)
+        toggleAntiAFK(state)
+    end
+})
+
+OrionLib:Init()

@@ -1,0 +1,136 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "Trampoline Battle Simulator GUI", HidePremium = false, SaveConfig = false, ConfigFolder = "OrionTest"})
+
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local toggledInfinitePower = false
+local toggledInfiniteWins = false
+local toggledInfiniteRebirth = false
+local loopConnectionInfinitePower
+local loopConnectionInfiniteWins
+local loopConnectionInfiniteRebirth
+
+local function notifyToggleStatus(toggleName, status)
+    OrionLib:MakeNotification({
+        Name = toggleName,
+        Content = status and "Activated" or "Deactivated",
+        Image = "rbxassetid://4483345998",
+        Time = 5
+    })
+end
+
+local function infinitePower()
+    while toggledInfinitePower do
+        local args = {
+            [1] = math.huge
+        }
+        game:GetService("ReplicatedStorage").Event.Train:FireServer(unpack(args))
+        wait(1)
+    end
+end
+
+local function infiniteWins()
+    while toggledInfiniteWins do
+        local args = {
+            [1] = math.huge
+        }
+        game:GetService("ReplicatedStorage").Event.WinGain:FireServer(unpack(args))
+        wait(1)
+    end
+end
+
+local function infiniteRebirth()
+    while toggledInfiniteRebirth do
+        local args = {
+            [1] = 25
+        }
+        game:GetService("ReplicatedStorage").Event.HealthAdd:FireServer(unpack(args))
+        wait(1)
+    end
+end
+
+local function stopAllLoops()
+    if loopConnectionInfinitePower then
+        loopConnectionInfinitePower:Disconnect()
+        loopConnectionInfinitePower = nil
+    end
+    if loopConnectionInfiniteWins then
+        loopConnectionInfiniteWins:Disconnect()
+        loopConnectionInfiniteWins = nil
+    end
+    if loopConnectionInfiniteRebirth then
+        loopConnectionInfiniteRebirth:Disconnect()
+        loopConnectionInfiniteRebirth = nil
+    end
+end
+
+MainTab:AddToggle({
+    Name = "Infinite Power",
+    Default = false,
+    Callback = function(value)
+        toggledInfinitePower = value
+        notifyToggleStatus("Infinite Power", value)
+        if toggledInfinitePower then
+            loopConnectionInfinitePower = game:GetService("RunService").Heartbeat:Connect(infinitePower)
+        else
+            stopAllLoops()
+        end
+    end
+})
+
+MainTab:AddToggle({
+    Name = "Infinite Wins",
+    Default = false,
+    Callback = function(value)
+        toggledInfiniteWins = value
+        notifyToggleStatus("Infinite Wins", value)
+        if toggledInfiniteWins then
+            loopConnectionInfiniteWins = game:GetService("RunService").Heartbeat:Connect(infiniteWins)
+        else
+            stopAllLoops()
+        end
+    end
+})
+
+MainTab:AddToggle({
+    Name = "Infinite Rebirth",
+    Default = false,
+    Callback = function(value)
+        toggledInfiniteRebirth = value
+        notifyToggleStatus("Infinite Rebirth", value)
+        if toggledInfiniteRebirth then
+            loopConnectionInfiniteRebirth = game:GetService("RunService").Heartbeat:Connect(infiniteRebirth)
+        else
+            stopAllLoops()
+        end
+    end
+})
+
+MainTab:AddButton({
+    Name = "Infinite Op Pet",
+    Callback = function()
+        local args = {
+            [1] = "Abyss",
+            [2] = "Soul Warden",
+            [3] = math.huge
+        }
+        game:GetService("ReplicatedStorage").PEV.Hatch:FireServer(unpack(args))
+    end
+})
+
+MainTab:AddButton({
+    Name = "Infinite Enchants",
+    Callback = function()
+        local args = {
+            [1] = 1,
+            [2] = math.huge
+        }
+        game:GetService("ReplicatedStorage").Event.Enchanted:FireServer(unpack(args))
+    end
+})
+
+OrionLib:Init()

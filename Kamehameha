@@ -1,0 +1,164 @@
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
+local Window = OrionLib:MakeWindow({Name = "Kamehameha Simulator GUI", HidePremium = false, SaveConfig = false, ConfigFolder = "OrionTest"})
+
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local loopConnection1
+local loopConnection2
+local loopConnection3
+
+local function claimReward()
+    local args = {
+        [1] = "x2 Potion",
+        [2] = 900000
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ClaimReward"):FireServer(unpack(args))
+end
+
+local function claimPower()
+    local args = {
+        [1] = "Power",
+        [2] = 300
+    }
+    game:GetService("ReplicatedStorage").Remotes.AddWheelSpinValue:FireServer(unpack(args))
+end
+
+local function addSpins()
+    local args = {
+        [1] = "Spins",
+        [2] = 99
+    }
+    game:GetService("ReplicatedStorage").Remotes.AddWheelSpinValue:FireServer(unpack(args))
+end
+
+local function claimTimePet()
+    local args = {
+        [1] = true
+    }
+    game:GetService("ReplicatedStorage").Remotes.ClaimTimePet:InvokeServer(unpack(args))
+end
+
+local function claimMegaPet()
+    local args = {
+        [1] = "Mega Pet New",
+        [2] = 1
+    }
+    game:GetService("ReplicatedStorage").Remotes.ClaimReward:FireServer(unpack(args))
+end
+
+local isLoopingReward = false
+local isLoopingPower = false
+local isLoopingSpins = false
+
+MainTab:AddToggle({
+    Name = "Infinite X2 Potion",
+    Default = false,
+    Callback = function(state)
+        isLoopingReward = state
+        if isLoopingReward then
+            loopConnection1 = game:GetService("RunService").Heartbeat:Connect(function()
+                claimReward()
+                wait(0.5)
+            end)
+            OrionLib:MakeNotification({
+                Name = "Started",
+                Content = "Infinite Potion started.",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
+        else
+            if loopConnection1 then
+                loopConnection1:Disconnect()
+                loopConnection1 = nil
+                OrionLib:MakeNotification({
+                    Name = "Stopped",
+                    Content = "Infinite Potion stopped.",
+                    Image = "rbxassetid://4483345998",
+                    Time = 2
+                })
+            end
+        end
+    end
+})
+
+MainTab:AddToggle({
+    Name = "Infinite Power",
+    Default = false,
+    Callback = function(state)
+        isLoopingPower = state
+        if isLoopingPower then
+            loopConnection2 = game:GetService("RunService").Heartbeat:Connect(function()
+                claimPower()
+                wait(0.5)
+            end)
+            OrionLib:MakeNotification({
+                Name = "Started",
+                Content = "Infinite Power started.",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
+        else
+            if loopConnection2 then
+                loopConnection2:Disconnect()
+                loopConnection2 = nil
+                OrionLib:MakeNotification({
+                    Name = "Stopped",
+                    Content = "Infinite Power stopped.",
+                    Image = "rbxassetid://4483345998",
+                    Time = 2
+                })
+            end
+        end
+    end
+})
+
+MainTab:AddToggle({
+    Name = "Infinite Spins",
+    Default = false,
+    Callback = function(state)
+        isLoopingSpins = state
+        if isLoopingSpins then
+            loopConnection3 = game:GetService("RunService").Heartbeat:Connect(function()
+                addSpins()
+                wait(0.5)
+            end)
+            OrionLib:MakeNotification({
+                Name = "Started",
+                Content = "Infinite Spins Started",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
+        else
+            if loopConnection3 then
+                loopConnection3:Disconnect()
+                loopConnection3 = nil
+                OrionLib:MakeNotification({
+                    Name = "Stopped",
+                    Content = "Infinite Spins stopped.",
+                    Image = "rbxassetid://4483345998",
+                    Time = 2
+                })
+            end
+        end
+    end
+})
+
+MainTab:AddButton({
+    Name = "Free Exclusive Pet",
+    Callback = function()
+        claimTimePet()
+    end
+})
+
+MainTab:AddButton({
+    Name = "Free Mega Pet",
+    Callback = function()
+        claimMegaPet()
+    end
+})
+
+OrionLib:Init()

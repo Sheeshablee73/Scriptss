@@ -1,0 +1,97 @@
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
+local Window = OrionLib:MakeWindow({Name = "Go Kart Simulator GUI", HidePremium = false, SaveConfig = false, ConfigFolder = "OrionTest"})
+
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local function executeFunctionWithLimit(name, func, limit)
+    local count = 0
+    local connection
+    connection = game:GetService("RunService").Heartbeat:Connect(function()
+        if count < limit then
+            func()
+            count = count + 1
+        else
+            connection:Disconnect()
+            OrionLib:MakeNotification({
+                Name = name .. " Completed",
+                Content = name .. " has executed " .. limit .. " times.",
+                Image = "rbxassetid://4483345998",
+                Time = 5
+            })
+        end
+        wait(1)
+    end)
+end
+
+local function infPower()
+    local args = {
+        [1] = 3
+    }
+    game:GetService("ReplicatedStorage").Remotes.Spin:FireServer(unpack(args))
+end
+
+local function infWins()
+    local args = {
+        [1] = 1
+    }
+    game:GetService("ReplicatedStorage").Remotes.Spin:FireServer(unpack(args))
+end
+
+local function infBoosts()
+    local winBoostArgs = {
+        [1] = "D4"
+    }
+    game:GetService("ReplicatedStorage").Remotes.Daily:FireServer(unpack(winBoostArgs))
+    
+    local powerBoostArgs = {
+        [1] = "D3"
+    }
+    game:GetService("ReplicatedStorage").Remotes.Daily:FireServer(unpack(powerBoostArgs))
+end
+
+local function freePet()
+    local args = {
+        [1] = "D6"
+    }
+    game:GetService("ReplicatedStorage").Remotes.Daily:FireServer(unpack(args))
+end
+
+MainTab:AddButton({
+    Name = "Infinite Wins",
+    Callback = function()
+        executeFunctionWithLimit("Infinite Wins", infWins, 280)
+    end
+})
+
+MainTab:AddButton({
+    Name = "Infinite Power",
+    Callback = function()
+        executeFunctionWithLimit("Infinite Power", infPower, 207)
+    end
+})
+
+MainTab:AddButton({
+    Name = "Infinite Boosts",
+    Callback = function()
+        executeFunctionWithLimit("Infinite Win & Power Boost", infBoosts, math.huge)
+    end
+})
+
+MainTab:AddButton({
+    Name = "Free Pet",
+    Callback = function()
+        freePet()
+        OrionLib:MakeNotification({
+            Name = "Free Pet",
+            Content = "You have received a free pet.",
+            Image = "rbxassetid://4483345998",
+            Time = 5
+        })
+    end
+})
+
+OrionLib:Init()
